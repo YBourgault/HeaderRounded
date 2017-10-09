@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/header_content"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/header_height"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/header_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/header_scrim"
+        android:background="@drawable/header_rounded_bg" />
+
+    <TextView
+        android:id="@+id/toolbar_title"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        tools:text="Incendie détecté" />
+
+    <ImageView
+        android:layout_width="?android:attr/actionBarSize"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@null"
+        android:scaleType="center"
+        android:src="@drawable/ic_close_black_24dp"
+        android:tint="@android:color/white" />
+
+    <FrameLayout
+        android:id="@+id/header_icon_container"
+        android:layout_width="@dimen/image_width"
+        android:layout_height="@dimen/image_width"
+        android:layout_centerHorizontal="true"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/header_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@drawable/header_icon_bg"
+            android:contentDescription="@null"
+            android:elevation="5dp"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_home_black_24dp"
+            android:tint="@color/colorRedMedium" />
+
+    </FrameLayout>
+
+</RelativeLayout>
