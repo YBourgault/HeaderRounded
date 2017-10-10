@@ -128,9 +128,13 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
                     currentScrimHeight, scrimRange, scrimDiff, scrimHeightPercent));
 
             //Icon
-            RelativeLayout.LayoutParams params =
+            RelativeLayout.LayoutParams iconParams =
                     (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
-            mIconContainer.setLayoutParams(params);
+            int rangeIconSize = mMaxIconSize - mMinIconSize;
+            int iconSize = (int) (((scrimHeightPercent / 100F) * rangeIconSize) + mMinIconSize);
+            iconParams.width = iconSize;
+            iconParams.height = iconSize;
+            // TODO: 10/10/2017 pourquoi j'ai de la perte (pos Y) si je set la size de l'icon
 
             int x;
             if (scrimHeightPercent >= 50) {
