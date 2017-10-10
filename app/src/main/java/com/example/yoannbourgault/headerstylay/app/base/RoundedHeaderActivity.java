@@ -37,6 +37,8 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     private int mScrollYHalf = 0;
     private int mHalfScrimSize;
     private int mMaxIconX;
+
+    private int mMaxIconPosX;
     private int mMaxIconPosY;
 
     @Override
@@ -68,6 +70,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
                         getResources().getDisplayMetrics());
             }
             mMaxIconPosY = (int) mIconContainer.getY();
+            mMaxIconPosX = (int) mIconContainer.getX();
             mScrollView.setOnScrollChangeListener(this);
         } else {
             Log.e(TAG, "ScrollView not found !!");
@@ -129,14 +132,13 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
                     (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
             mIconContainer.setLayoutParams(params);
 
+            int x;
             if (scrimHeightPercent >= 50) {
                 //icon center_horizontal, move on Y axe
-                int center = (int) ((mScrim.getWidth() / 2F) - (mIconContainer.getWidth() / 2F));
-                setIconX(center);
+                x = (int) ((mScrim.getWidth() / 2F) - (mIconContainer.getWidth() / 2F));
             } else {
                 //icon moving on X and Y axes
-                setIconX(0);
-                // TODO: 10/10/2017
+                x = (int) (((scrimHeightPercent * 2F) / 100F) * mMaxIconPosX);
             }
 
             Log.e(TAG, String.format("Max Pos Y = %d\n" +
@@ -144,6 +146,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
                             "Calculated Y = %d", mMaxIconPosY, scrimHeightPercent / 100F,
                     (scrimHeightPercent / 100) * mMaxIconPosY));
 
+            setIconX(x);
             setIconY((int) ((scrimHeightPercent / 100F) * mMaxIconPosY));
         } else {
             Log.e(TAG, "Header icon NULL !!");
