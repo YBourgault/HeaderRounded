@@ -10,7 +10,7 @@
     <View
         android:id="@+id/header_scrim"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/header_scrim"
+        android:layout_height="@dimen/scrim_height_max"
         android:background="@drawable/header_rounded_bg" />
 
     <TextView
@@ -34,8 +34,8 @@
 
     <FrameLayout
         android:id="@+id/header_icon_container"
-        android:layout_width="@dimen/image_width"
-        android:layout_height="@dimen/image_width"
+        android:layout_width="@dimen/image_size_max"
+        android:layout_height="@dimen/image_size_max"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:padding="8dp">

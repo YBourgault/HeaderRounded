@@ -1,5 +1,6 @@
 package com.example.yoannbourgault.headerstylay.app.base;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,12 +11,9 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.example.yoannbourgault.headerstylay.R;
 
@@ -24,22 +22,17 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     private static final String TAG = RoundedHeaderActivity.class.getSimpleName();
 
-    private NestedScrollView mScrollView;
-    private RelativeLayout mContent;
     private FrameLayout mIconContainer;
-    private ImageView mHeaderIcon;
     private View mScrim;
 
     private int mMinIconSize = 0;
     private int mMaxIconSize = 0;
+
     private int mMinScrimSize = 0;
     private int mMaxScrimSize = 0;
-    private int mScrollYHalf = 0;
-    private int mHalfScrimSize;
-    private int mMaxIconX;
 
-    private int mMaxIconPosX;
-    private int mMaxIconPosY;
+    private float mMaxIconPosX = 0;
+    private float mMaxIconPosY = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,26 +47,38 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        mScrollView = getScrollView();
-        if (mScrollView != null) {
-            mIconContainer = getIconContainer();
+        NestedScrollView scrollView = getScrollView();
+        if (scrollView != null) {
+            //Init scrim
             mScrim = getHeaderScrim();
-
-            mMaxScrimSize = getResources().getDimensionPixelSize(R.dimen.header_scrim);
-            mMinScrimSize = getResources().getDimensionPixelSize(R.dimen.header_scrim_min);
-            mHalfScrimSize = ((mMaxScrimSize - mMinScrimSize) / 2) + mMinScrimSize;
-
-            mMaxIconSize = getResources().getDimensionPixelSize(R.dimen.image_width);
+            mMaxScrimSize = getResources().getDimensionPixelSize(R.dimen.scrim_height_max);
+            mMinScrimSize = getResources().getDimensionPixelSize(R.dimen.scrim_height_min);
+            //Init icon
+            mIconContainer = getIconContainer();
+            mMaxIconSize = getResources().getDimensionPixelSize(R.dimen.image_size_max);
             TypedValue tv = new TypedValue();
             if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
                 mMinIconSize = TypedValue.complexToDimensionPixelSize(tv.data,
                         getResources().getDisplayMetrics());
             }
-            mMaxIconPosY = (int) mIconContainer.getY();
-            mMaxIconPosX = (int) mIconContainer.getX();
-            mScrollView.setOnScrollChangeListener(this);
+            float halfIconDiff = ((mMaxIconSize - mMinIconSize) / 2);
+            mMaxIconPosY = mIconContainer.getY() + halfIconDiff ;
+            mMaxIconPosX = mIconContainer.getX() + halfIconDiff;
+            scrollView.setOnScrollChangeListener(this);
         } else {
             Log.e(TAG, "ScrollView not found !!");
+        }
+    }
+
+    @Override
+    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
+            int oldScrollY) {
+        if (mIconContainer != null && mScrim != null) {
+            transformScrim(scrollY);
+            int scrimHeightPercent = getScrimScrollingPercent();
+            transformIcon(scrimHeightPercent);
+        } else {
+            Log.e(TAG, "Header icon NULL !!");
         }
     }
 
@@ -81,11 +86,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     protected abstract int getStatusBarColorResId();
 
-    protected abstract ImageView getHeaderIcon();
-
     protected abstract NestedScrollView getScrollView();
-
-    protected abstract RelativeLayout getHeaderContainer();
 
     protected abstract View getHeaderScrim();
 
@@ -101,67 +102,51 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
-            int oldScrollY) {
-        if (mIconContainer != null && mScrim != null) {
-            int size;
-
-            //Scrim
-            ViewGroup.LayoutParams contentParams = mScrim.getLayoutParams();
-            size = mMaxScrimSize - scrollY;
-            if (size < mMinScrimSize) {
-                size = mMinScrimSize;
-            }
-            contentParams.height = size;
-            mScrim.setLayoutParams(contentParams);
-
-            int currentScrimHeight = mScrim.getHeight();
-            int scrimRange = mMaxScrimSize - mMinScrimSize;
-            int scrimDiff = mMaxScrimSize - currentScrimHeight;
-            int scrimHeightPercent = (int) (((scrimRange - scrimDiff) * 100F) / scrimRange);
-
-            Log.e(TAG, String.format("currentScrimHeight = %d\n" +
-                            "scrimRange = %d\n" +
-                            "scrimDiff = %d\n" +
-                            "Scrim at %d %%",
-                    currentScrimHeight, scrimRange, scrimDiff, scrimHeightPercent));
-
-            //Icon
-            RelativeLayout.LayoutParams iconParams =
-                    (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
-            int rangeIconSize = mMaxIconSize - mMinIconSize;
-            int iconSize = (int) (((scrimHeightPercent / 100F) * rangeIconSize) + mMinIconSize);
-            iconParams.width = iconSize;
-            iconParams.height = iconSize;
-            // TODO: 10/10/2017 pourquoi j'ai de la perte (pos Y) si je set la size de l'icon
-
-            int x;
-            if (scrimHeightPercent >= 50) {
-                //icon center_horizontal, move on Y axe
-                x = (int) ((mScrim.getWidth() / 2F) - (mIconContainer.getWidth() / 2F));
-            } else {
-                //icon moving on X and Y axes
-                x = (int) (((scrimHeightPercent * 2F) / 100F) * mMaxIconPosX);
-            }
-
-            Log.e(TAG, String.format("Max Pos Y = %d\n" +
-                            "Ratio = %f\n" +
-                            "Calculated Y = %d", mMaxIconPosY, scrimHeightPercent / 100F,
-                    (scrimHeightPercent / 100) * mMaxIconPosY));
-
-            setIconX(x);
-            setIconY((int) ((scrimHeightPercent / 100F) * mMaxIconPosY));
-        } else {
-            Log.e(TAG, "Header icon NULL !!");
+    private void transformScrim(int scrollY) {
+        int size;
+        ViewGroup.LayoutParams contentParams = mScrim.getLayoutParams();
+        size = mMaxScrimSize - scrollY;
+        if (size < mMinScrimSize) {
+            size = mMinScrimSize;
         }
+        contentParams.height = size;
+        mScrim.setLayoutParams(contentParams);
     }
 
-    private void setIconX(final int x) {
-        mIconContainer.setX(x);
+    private void transformIcon(int scrimHeightPercent) {
+        //Resize
+        int rangeIconSize = mMaxIconSize - mMinIconSize;
+        float iconSize = (((scrimHeightPercent / 100F) * rangeIconSize) + mMinIconSize);
+        float scale = (iconSize / mMaxIconSize);
+        mIconContainer.setScaleX(scale);
+        mIconContainer.setScaleY(scale);
+
+        //Position
+        float translationX;
+        if (scrimHeightPercent >= 50) {
+            // >= 50% : icon center_horizontal, move only on Y axe
+            translationX = 0;
+            if (mIconContainer.getX() > mMaxIconPosX) {
+                mMaxIconPosX = mIconContainer.getX();
+            }
+        } else {
+            // < 50% : icon moving on X and Y axes (according to scrim scrolling percentage)
+            float x = (((scrimHeightPercent * 2F) / 100F) * mMaxIconPosX);
+            translationX = (mMaxIconPosX - x) * (-1F);
+        }
+        mIconContainer.setTranslationX(translationX);
+        float translationY = ((mMaxIconPosY - ((scrimHeightPercent / 100F) * mMaxIconPosY))) * (-1);
+        mIconContainer.setTranslationY(translationY);
     }
 
-    private void setIconY(final int y) {
-        mIconContainer.setY(y);
+    private int getScrimScrollingPercent() {
+        int currentScrimHeight = mScrim.getHeight();
+        int scrimRange = mMaxScrimSize - mMinScrimSize;
+        int scrimDiff = mMaxScrimSize - currentScrimHeight;
+        return (int) (((scrimRange - scrimDiff) * 100F) / scrimRange);
+    }
+
+    private static int dpFromPx(final Context context, final float px) {
+        return (int) (px / context.getResources().getDisplayMetrics().density);
     }
 }

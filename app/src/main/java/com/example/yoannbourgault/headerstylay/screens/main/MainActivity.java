@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.v4.widget.NestedScrollView;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.example.yoannbourgault.headerstylay.R;
 import com.example.yoannbourgault.headerstylay.app.base.RoundedHeaderActivity;
@@ -28,18 +26,8 @@ public class MainActivity extends RoundedHeaderActivity {
     }
 
     @Override
-    protected ImageView getHeaderIcon() {
-        return (ImageView) findViewById(R.id.header_icon);
-    }
-
-    @Override
     protected NestedScrollView getScrollView() {
         return (NestedScrollView) findViewById(R.id.nested_scroll_view);
-    }
-
-    @Override
-    protected RelativeLayout getHeaderContainer() {
-        return (RelativeLayout) findViewById(R.id.header_content);
     }
 
     @Override

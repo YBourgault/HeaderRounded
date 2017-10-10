@@ -2,12 +2,13 @@
 <resources>
 
     <dimen name="spacing_normal">16dp</dimen>
-    <dimen name="image_width">96dp</dimen>
-    <dimen name="image_final_width">32dp</dimen>
+
+    <dimen name="image_size_max">96dp</dimen>
+    <dimen name="image_size_min">32dp</dimen>
 
     <dimen name="header_height">180dp</dimen>
 
-    <dimen name="header_scrim">132dp</dimen>
-    <dimen name="header_scrim_min">90dp</dimen>
+    <dimen name="scrim_height_max">132dp</dimen>
+    <dimen name="scrim_height_min">90dp</dimen>
 
 </resources>
