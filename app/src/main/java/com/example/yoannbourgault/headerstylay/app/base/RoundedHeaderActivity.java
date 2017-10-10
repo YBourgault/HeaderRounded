@@ -10,6 +10,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -25,7 +26,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     private NestedScrollView mScrollView;
     private RelativeLayout mContent;
-    private FrameLayout mHeaderIconContainer;
+    private FrameLayout mIconContainer;
     private ImageView mHeaderIcon;
     private View mScrim;
 
@@ -34,8 +35,9 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     private int mMinScrimSize = 0;
     private int mMaxScrimSize = 0;
     private int mScrollYHalf = 0;
-    private int mScrimHalfSize;
+    private int mHalfScrimSize;
     private int mMaxIconX;
+    private int mMaxIconPosY;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,24 +47,30 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         mScrollView = getScrollView();
         if (mScrollView != null) {
-            mHeaderIconContainer = getHeaderIconContainer();
-            mHeaderIcon = getHeaderIcon();
-            mContent = getHeaderContainer();
+            mIconContainer = getIconContainer();
             mScrim = getHeaderScrim();
+
             mMaxScrimSize = getResources().getDimensionPixelSize(R.dimen.header_scrim);
             mMinScrimSize = getResources().getDimensionPixelSize(R.dimen.header_scrim_min);
-            mScrimHalfSize = ((mMaxScrimSize - mMinScrimSize) / 2) + mMinScrimSize;
+            mHalfScrimSize = ((mMaxScrimSize - mMinScrimSize) / 2) + mMinScrimSize;
+
             mMaxIconSize = getResources().getDimensionPixelSize(R.dimen.image_width);
             TypedValue tv = new TypedValue();
             if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
                 mMinIconSize = TypedValue.complexToDimensionPixelSize(tv.data,
                         getResources().getDisplayMetrics());
             }
+            mMaxIconPosY = (int) mIconContainer.getY();
             mScrollView.setOnScrollChangeListener(this);
         } else {
-            Log.e(TAG, "ScrollView NULL !!");
+            Log.e(TAG, "ScrollView not found !!");
         }
     }
 
@@ -78,7 +86,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     protected abstract View getHeaderScrim();
 
-    protected abstract FrameLayout getHeaderIconContainer();
+    protected abstract FrameLayout getIconContainer();
 
     protected void changeStatusBarColor(int colorResId) {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -93,10 +101,10 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     @Override
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
             int oldScrollY) {
-        if (mHeaderIconContainer != null && mScrim != null) {
+        if (mIconContainer != null && mScrim != null) {
             int size;
 
-            //Container
+            //Scrim
             ViewGroup.LayoutParams contentParams = mScrim.getLayoutParams();
             size = mMaxScrimSize - scrollY;
             if (size < mMinScrimSize) {
@@ -105,32 +113,48 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
             contentParams.height = size;
             mScrim.setLayoutParams(contentParams);
 
+            int currentScrimHeight = mScrim.getHeight();
+            int scrimRange = mMaxScrimSize - mMinScrimSize;
+            int scrimDiff = mMaxScrimSize - currentScrimHeight;
+            int scrimHeightPercent = (int) (((scrimRange - scrimDiff) * 100F) / scrimRange);
+
+            Log.e(TAG, String.format("currentScrimHeight = %d\n" +
+                            "scrimRange = %d\n" +
+                            "scrimDiff = %d\n" +
+                            "Scrim at %d %%",
+                    currentScrimHeight, scrimRange, scrimDiff, scrimHeightPercent));
+
             //Icon
             RelativeLayout.LayoutParams params =
-                    (RelativeLayout.LayoutParams) mHeaderIconContainer.getLayoutParams();
-            size = mMaxIconSize - scrollY;
-            if (size < mMinIconSize) {
-                size = mMinIconSize;
-            }
-            params.width = size;
-            params.height = size;
+                    (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
+            mIconContainer.setLayoutParams(params);
 
-            mHeaderIconContainer.setLayoutParams(params);
-
-            int x;
-            if (mScrim.getHeight() >= mScrimHalfSize) {
-                x = (mContent.getWidth() / 2) - (mHeaderIconContainer.getWidth() / 2);
-                if (mScrim.getHeight() == mScrimHalfSize) {
-                    mMaxIconX = (int) mScrim.getX();
-                }
+            if (scrimHeightPercent >= 50) {
+                //icon center_horizontal, move on Y axe
+                int center = (int) ((mScrim.getWidth() / 2F) - (mIconContainer.getWidth() / 2F));
+                setIconX(center);
             } else {
-                int percentScrolling = 100;
-                x = (percentScrolling / 100) * mMaxIconX;
+                //icon moving on X and Y axes
+                setIconX(0);
+                // TODO: 10/10/2017
             }
-            mHeaderIconContainer.setX(x);
 
+            Log.e(TAG, String.format("Max Pos Y = %d\n" +
+                            "Ratio = %f\n" +
+                            "Calculated Y = %d", mMaxIconPosY, scrimHeightPercent / 100F,
+                    (scrimHeightPercent / 100) * mMaxIconPosY));
+
+            setIconY((int) ((scrimHeightPercent / 100F) * mMaxIconPosY));
         } else {
             Log.e(TAG, "Header icon NULL !!");
         }
+    }
+
+    private void setIconX(final int x) {
+        mIconContainer.setX(x);
+    }
+
+    private void setIconY(final int y) {
+        mIconContainer.setY(y);
     }
 }

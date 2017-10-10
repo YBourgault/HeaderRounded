@@ -48,7 +48,7 @@ public class MainActivity extends RoundedHeaderActivity {
     }
 
     @Override
-    protected FrameLayout getHeaderIconContainer() {
+    protected FrameLayout getIconContainer() {
         return (FrameLayout) findViewById(R.id.header_icon_container);
     }
 }
