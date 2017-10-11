@@ -1,6 +1,5 @@
 package com.example.yoannbourgault.headerstylay.app.base;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,9 +10,11 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.example.yoannbourgault.headerstylay.R;
 
@@ -31,8 +32,8 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     private int mMinScrimSize = 0;
     private int mMaxScrimSize = 0;
 
-    private float mMaxIconPosX = 0;
-    private float mMaxIconPosY = 0;
+    private float mMarginLeftStart = 0;
+    private float mMarginTopStart = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,11 +43,6 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("");
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         NestedScrollView scrollView = getScrollView();
         if (scrollView != null) {
             //Init scrim
@@ -61,9 +57,20 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
                 mMinIconSize = TypedValue.complexToDimensionPixelSize(tv.data,
                         getResources().getDisplayMetrics());
             }
-            float halfIconDiff = ((mMaxIconSize - mMinIconSize) / 2);
-            mMaxIconPosY = mIconContainer.getY() + halfIconDiff ;
-            mMaxIconPosX = mIconContainer.getX() + halfIconDiff;
+
+            ViewTreeObserver vto = mScrim.getViewTreeObserver();
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    mScrim.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    mMarginLeftStart = mScrim.getX() + (mScrim.getWidth() / 2) - (mMaxIconSize / 2);
+                    mMarginTopStart = mScrim.getY() + mScrim.getHeight() - (mMaxIconSize / 2);
+                    RelativeLayout.LayoutParams params =
+                            (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
+                    params.setMargins((int) mMarginLeftStart, (int) mMarginTopStart, 0, 0);
+                    mIconContainer.setLayoutParams(params);
+                }
+            });
             scrollView.setOnScrollChangeListener(this);
         } else {
             Log.e(TAG, "ScrollView not found !!");
@@ -74,8 +81,8 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
             int oldScrollY) {
         if (mIconContainer != null && mScrim != null) {
-            transformScrim(scrollY);
-            int scrimHeightPercent = getScrimScrollingPercent();
+            int scrimHeightPercent = transformScrim(scrollY);
+            Log.e(TAG, String.format("Scrim percent = %d", scrimHeightPercent));
             transformIcon(scrimHeightPercent);
         } else {
             Log.e(TAG, "Header icon NULL !!");
@@ -102,7 +109,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         }
     }
 
-    private void transformScrim(int scrollY) {
+    private int transformScrim(int scrollY) {
         int size;
         ViewGroup.LayoutParams contentParams = mScrim.getLayoutParams();
         size = mMaxScrimSize - scrollY;
@@ -111,9 +118,12 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         }
         contentParams.height = size;
         mScrim.setLayoutParams(contentParams);
+        int scrimRange = mMaxScrimSize - mMinScrimSize;
+        int scrimDiff = mMaxScrimSize - size;
+        return (int) (((scrimRange - scrimDiff) * 100F) / scrimRange);
     }
 
-    private void transformIcon(int scrimHeightPercent) {
+    private void transformIcon(final int scrimHeightPercent) {
         //Resize
         int rangeIconSize = mMaxIconSize - mMinIconSize;
         float iconSize = (((scrimHeightPercent / 100F) * rangeIconSize) + mMinIconSize);
@@ -122,31 +132,29 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         mIconContainer.setScaleY(scale);
 
         //Position
-        float translationX;
-        if (scrimHeightPercent >= 50) {
-            // >= 50% : icon center_horizontal, move only on Y axe
-            translationX = 0;
-            if (mIconContainer.getX() > mMaxIconPosX) {
-                mMaxIconPosX = mIconContainer.getX();
-            }
+        RelativeLayout.LayoutParams params =
+                (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
+        int topMargin;
+        if (scrimHeightPercent == 100) {
+            topMargin = (int) (mScrim.getY() + mScrim.getHeight() - (mMaxIconSize / 2));
         } else {
-            // < 50% : icon moving on X and Y axes (according to scrim scrolling percentage)
-            float x = (((scrimHeightPercent * 2F) / 100F) * mMaxIconPosX);
-            translationX = (mMaxIconPosX - x) * (-1F);
+            topMargin = (int) (((scrimHeightPercent / 100F) * mMarginTopStart) -
+                    ((mMaxIconSize - mMinIconSize) / 2F));
         }
-        mIconContainer.setTranslationX(translationX);
-        float translationY = ((mMaxIconPosY - ((scrimHeightPercent / 100F) * mMaxIconPosY))) * (-1);
-        mIconContainer.setTranslationY(translationY);
+
+        int leftMargin;
+        if (scrimHeightPercent >= 50) {
+            leftMargin = (int) mMarginLeftStart;
+        } else {
+            float x = (((scrimHeightPercent * 2F) / 100F) * mMarginLeftStart);
+            leftMargin = (int) (x - ((mMaxIconSize - mMinIconSize) / 2F));
+        }
+        if (params.topMargin == topMargin && params.leftMargin == leftMargin) {
+            return;
+        }
+        params.topMargin = topMargin;
+        params.leftMargin = leftMargin;
+        mIconContainer.setLayoutParams(params);
     }
 
-    private int getScrimScrollingPercent() {
-        int currentScrimHeight = mScrim.getHeight();
-        int scrimRange = mMaxScrimSize - mMinScrimSize;
-        int scrimDiff = mMaxScrimSize - currentScrimHeight;
-        return (int) (((scrimRange - scrimDiff) * 100F) / scrimRange);
-    }
-
-    private static int dpFromPx(final Context context, final float px) {
-        return (int) (px / context.getResources().getDisplayMetrics().density);
-    }
 }

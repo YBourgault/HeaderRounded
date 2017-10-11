@@ -11,34 +11,41 @@
         android:id="@+id/header_scrim"
         android:layout_width="match_parent"
         android:layout_height="@dimen/scrim_height_max"
+        android:layout_alignParentTop="true"
         android:background="@drawable/header_rounded_bg" />
 
-    <TextView
-        android:id="@+id/toolbar_title"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        tools:text="Incendie détecté" />
+        android:orientation="horizontal">
 
-    <ImageView
-        android:layout_width="?android:attr/actionBarSize"
-        android:layout_height="?android:attr/actionBarSize"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:contentDescription="@null"
-        android:scaleType="center"
-        android:src="@drawable/ic_close_black_24dp"
-        android:tint="@android:color/white" />
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            tools:text="Incendie détecté" />
+
+        <ImageView
+            android:layout_width="?android:attr/actionBarSize"
+            android:layout_height="?android:attr/actionBarSize"
+            android:contentDescription="@null"
+            android:scaleType="center"
+            android:src="@drawable/ic_close_black_24dp"
+            android:tint="@android:color/white" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/header_icon_container"
         android:layout_width="@dimen/image_size_max"
         android:layout_height="@dimen/image_size_max"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:padding="8dp">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/header_icon"
