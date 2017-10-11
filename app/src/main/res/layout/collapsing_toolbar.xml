@@ -4,8 +4,7 @@
     android:id="@+id/header_content"
     android:layout_width="match_parent"
     android:layout_height="@dimen/header_height"
-    android:background="@android:color/transparent"
-    android:orientation="vertical">
+    android:background="@android:color/transparent">
 
     <View
         android:id="@+id/header_scrim"
@@ -30,6 +29,7 @@
             tools:text="Incendie détecté" />
 
         <ImageView
+            android:id="@+id/close_icon"
             android:layout_width="?android:attr/actionBarSize"
             android:layout_height="?android:attr/actionBarSize"
             android:contentDescription="@null"

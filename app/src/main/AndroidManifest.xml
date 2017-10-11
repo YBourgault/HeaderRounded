@@ -9,21 +9,46 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".screens.main.MainActivity">
+
+        <activity android:name=".screens.home.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".screens.tls.TLSActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="yb"
-                    android:path="/main"
+                    android:path="/tls"
                     android:scheme="http" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".screens.detector.DetectorActivity"
+            android:parentActivityName=".screens.home.HomeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="yb"
+                    android:path="/detector"
+                    android:scheme="http" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".screens.home.HomeActivity" />
+        </activity>
+
     </application>
 
 </manifest>

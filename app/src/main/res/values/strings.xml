@@ -11,4 +11,6 @@
         The standard Lorem Ipsum passage, used since the 1500s  \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp....\n
         The standard Lorem Ipsum passage, used since the 1500s  \"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod temp....
     </string>
+    <string name="tls_activity">TLS Activity</string>
+    <string name="detector_activity">Detector Activity</string>
 </resources>

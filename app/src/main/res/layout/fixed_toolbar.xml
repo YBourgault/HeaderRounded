@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/header_content"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/header_fixed_height"
+    android:background="@android:color/transparent">
+
+    <View
+        android:id="@+id/header_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/scrim_height_min"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/header_rounded_bg" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/fixed_header_icon_bg"
+            android:elevation="5dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            android:paddingEnd="12dp"
+            android:paddingStart="12dp"
+            android:paddingTop="8dp">
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="@dimen/image_size_min"
+                android:layout_height="@dimen/image_size_min"
+                android:contentDescription="@null"
+                android:tint="@color/colorRedMedium"
+                tools:src="@drawable/ic_home_black_24dp" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                tools:text="Détecteur Inférieur image" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/back_arrow"
+        android:layout_width="?android:attr/actionBarSize"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:clickable="true"
+        android:contentDescription="@null"
+        android:padding="@dimen/spacing_normal"
+        android:src="@drawable/ic_arrow_back_black_24dp"
+        android:tint="@android:color/white" />
+
+    <View
+        android:id="@+id/end_view"
+        android:layout_width="?android:attr/actionBarSize"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:id="@+id/toolbar_title"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_toEndOf="@+id/back_arrow"
+        android:layout_toStartOf="@+id/end_view"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        tools:text="Porte d'entrée" />
+
+</RelativeLayout>

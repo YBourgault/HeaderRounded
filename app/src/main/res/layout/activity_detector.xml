@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBg"
-    android:orientation="vertical"
-    tools:context="com.example.yoannbourgault.headerstylay.screens.main.MainActivity">
+    tools:context="com.example.yoannbourgault.headerstylay.screens.detector.DetectorActivity">
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nested_scroll_view"
@@ -34,12 +33,12 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-    <com.example.yoannbourgault.headerstylay.screens.header.CollapsingToolbar
-        android:id="@+id/header"
+    <com.example.yoannbourgault.headerstylay.screens.header.FixedToolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         app:contentInsetEnd="0dp"
-        app:contentInsetStart="0dp" />
+        app:contentInsetStart="0dp"
+        android:id="@+id/fixed_toolbar"/>
 
 </RelativeLayout>
