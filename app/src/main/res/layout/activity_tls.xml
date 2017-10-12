@@ -7,11 +7,10 @@
     android:background="@color/colorBg"
     tools:context="com.example.yoannbourgault.headerstylay.screens.tls.TLSActivity">
 
-    <android.support.v4.widget.NestedScrollView
+    <com.example.yoannbourgault.headerstylay.app.base.SwipeToRefreshNestedScrollView
         android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -27,11 +26,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lineSpacingExtra="8dp"
+                android:layout_margin="16dp"
                 android:text="@string/random_text" />
 
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </com.example.yoannbourgault.headerstylay.app.base.SwipeToRefreshNestedScrollView>
 
     <com.example.yoannbourgault.headerstylay.screens.header.CollapsingToolbar
         android:id="@+id/collapsing_toolbar"

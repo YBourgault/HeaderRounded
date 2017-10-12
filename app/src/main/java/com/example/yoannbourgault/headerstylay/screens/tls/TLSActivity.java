@@ -1,12 +1,13 @@
 package com.example.yoannbourgault.headerstylay.screens.tls;
 
 import android.os.Bundle;
-import android.support.v4.widget.NestedScrollView;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.example.yoannbourgault.headerstylay.R;
 import com.example.yoannbourgault.headerstylay.app.base.RoundedHeaderActivity;
+import com.example.yoannbourgault.headerstylay.app.base.SwipeToRefreshNestedScrollView;
 import com.example.yoannbourgault.headerstylay.screens.header.CollapsingToolbar;
 
 public class TLSActivity extends RoundedHeaderActivity implements
@@ -30,8 +31,13 @@ public class TLSActivity extends RoundedHeaderActivity implements
     }
 
     @Override
-    protected NestedScrollView getScrollView() {
-        return (NestedScrollView) findViewById(R.id.nested_scroll_view);
+    protected SwipeToRefreshNestedScrollView getScrollView() {
+        return (SwipeToRefreshNestedScrollView) findViewById(R.id.nested_scroll_view);
+    }
+
+    @Override
+    protected RelativeLayout getHeader() {
+        return (RelativeLayout) findViewById(R.id.header_content);
     }
 
     @Override
@@ -42,6 +48,11 @@ public class TLSActivity extends RoundedHeaderActivity implements
     @Override
     protected FrameLayout getIconContainer() {
         return (FrameLayout) findViewById(R.id.header_icon_container);
+    }
+
+    @Override
+    protected void refreshContent() {
+        // TODO: 12/10/2017 Refresh data & UI
     }
 
     @Override

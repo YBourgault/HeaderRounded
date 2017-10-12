@@ -19,10 +19,12 @@ import android.widget.RelativeLayout;
 import com.example.yoannbourgault.headerstylay.R;
 
 public abstract class RoundedHeaderActivity extends AppCompatActivity implements
-        NestedScrollView.OnScrollChangeListener {
+        NestedScrollView.OnScrollChangeListener,
+        SwipeToRefreshNestedScrollView.OnSwipeToRefreshListener {
 
     private static final String TAG = RoundedHeaderActivity.class.getSimpleName();
 
+    private RelativeLayout mHeader;
     private FrameLayout mIconContainer;
     private View mScrim;
 
@@ -35,6 +37,8 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     private float mMarginLeftStart = 0;
     private float mMarginTopStart = 0;
 
+    private int mSwipeRefreshScrollY = 0;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +47,9 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("");
         }
-        NestedScrollView scrollView = getScrollView();
+        SwipeToRefreshNestedScrollView scrollView = getScrollView();
         if (scrollView != null) {
+            mHeader = getHeader();
             //Init scrim
             mScrim = getHeaderScrim();
             mMaxScrimSize = getResources().getDimensionPixelSize(R.dimen.scrim_height_max);
@@ -72,17 +77,17 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
                 }
             });
             scrollView.setOnScrollChangeListener(this);
+            scrollView.setOnSwipeToRefreshListener(this);
         } else {
             Log.e(TAG, "ScrollView not found !!");
         }
     }
 
     @Override
-    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX,
-            int oldScrollY) {
+    public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+        Log.i(TAG, String.format("onScrollChange(scrollY=%d)", scrollY));
         if (mIconContainer != null && mScrim != null) {
             int scrimHeightPercent = transformScrim(scrollY);
-            Log.e(TAG, String.format("Scrim percent = %d", scrimHeightPercent));
             transformIcon(scrimHeightPercent);
         } else {
             Log.e(TAG, "Header icon NULL !!");
@@ -93,7 +98,9 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     protected abstract int getStatusBarColorResId();
 
-    protected abstract NestedScrollView getScrollView();
+    protected abstract SwipeToRefreshNestedScrollView getScrollView();
+
+    protected abstract RelativeLayout getHeader();
 
     protected abstract View getHeaderScrim();
 
@@ -110,6 +117,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     }
 
     private int transformScrim(int scrollY) {
+        Log.i(TAG, String.format("transformScrim(scrollY=%d)", scrollY));
         int size;
         ViewGroup.LayoutParams contentParams = mScrim.getLayoutParams();
         size = mMaxScrimSize - scrollY;
@@ -124,6 +132,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     }
 
     private void transformIcon(final int scrimHeightPercent) {
+        Log.i(TAG, String.format("transformIcon(scrimHeightPercent=%d)", scrimHeightPercent));
         //Resize
         int rangeIconSize = mMaxIconSize - mMinIconSize;
         float iconSize = (((scrimHeightPercent / 100F) * rangeIconSize) + mMinIconSize);
@@ -156,5 +165,67 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
         params.leftMargin = leftMargin;
         mIconContainer.setLayoutParams(params);
     }
+
+    @Override
+    public void onSwipingToRefresh(int scrollY) {
+        Log.i(TAG, String.format("onSwipingToRefresh(scrollY=%d)", scrollY));
+        mSwipeRefreshScrollY = scrollY;
+        if (mScrim != null) {
+            //Header height
+            ViewGroup.LayoutParams headerParams = mHeader.getLayoutParams();
+            headerParams.height = getResources().getDimensionPixelOffset(R.dimen.header_height)
+                    + scrollY;
+            mHeader.setLayoutParams(headerParams);
+            //Scrim height
+            RelativeLayout.LayoutParams scrimParams =
+                    (RelativeLayout.LayoutParams) mScrim.getLayoutParams();
+            scrimParams.height = getResources().getDimensionPixelOffset(R.dimen.scrim_height_max)
+                    + scrollY;
+            mScrim.setLayoutParams(scrimParams);
+            //Icon top margin
+            RelativeLayout.LayoutParams iconParams =
+                    (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
+            iconParams.topMargin = (int) (mScrim.getY() + mScrim.getHeight() - (mMaxIconSize / 2));
+            mIconContainer.setLayoutParams(iconParams);
+        }
+    }
+
+    @Override
+    public void onActionUp() {
+        Log.i(TAG, String.format("onActionUp() [mSwipeRefreshScrollY=%d]", mSwipeRefreshScrollY));
+        if (mSwipeRefreshScrollY <= 0) {
+            return;
+        }
+        if (mScrim != null) {
+            //Header height
+            ViewGroup.LayoutParams headerParams = mHeader.getLayoutParams();
+            headerParams.height = getResources().getDimensionPixelOffset(R.dimen.header_height);
+            mHeader.setLayoutParams(headerParams);
+            //Scrim height
+            RelativeLayout.LayoutParams params =
+                    (RelativeLayout.LayoutParams) mScrim.getLayoutParams();
+            params.height = getResources().getDimensionPixelOffset(
+                    R.dimen.scrim_height_max);
+            mScrim.setLayoutParams(params);
+            //Icon top margin
+            RelativeLayout.LayoutParams iconParams =
+                    (RelativeLayout.LayoutParams) mIconContainer.getLayoutParams();
+            iconParams.topMargin = (int) (mScrim.getY() + mMaxScrimSize - (mMaxIconSize / 2));
+            mIconContainer.setLayoutParams(iconParams);
+
+            //Refresh data?
+            if (mSwipeRefreshScrollY > dpFromPx(96)) {
+                refreshContent();
+            }
+            mSwipeRefreshScrollY = 0;
+        }
+    }
+
+    private float dpFromPx(final float px) {
+        return px / getResources().getDisplayMetrics().density;
+    }
+
+
+    protected abstract void refreshContent();
 
 }
