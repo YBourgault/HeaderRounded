@@ -39,6 +39,8 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     private int mSwipeRefreshScrollY = 0;
 
+    private boolean swipingToRefresh = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +87,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     @Override
     public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        Log.i(TAG, String.format("onScrollChange(scrollY=%d)", scrollY));
+        Log.i(TAG, String.format("onScrollChange(scrollX=%d, scrollY=%d, oldScrollX=%d, oldScrollY=%d)", scrollX, scrollY, oldScrollX, oldScrollY));
         if (mIconContainer != null && mScrim != null) {
             int scrimHeightPercent = transformScrim(scrollY);
             transformIcon(scrimHeightPercent);
@@ -117,7 +119,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     }
 
     private int transformScrim(int scrollY) {
-        Log.i(TAG, String.format("transformScrim(scrollY=%d)", scrollY));
+        //Log.i(TAG, String.format("transformScrim(scrollY=%d)", scrollY));
         int size;
         ViewGroup.LayoutParams contentParams = mScrim.getLayoutParams();
         size = mMaxScrimSize - scrollY;
@@ -132,7 +134,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
     }
 
     private void transformIcon(final int scrimHeightPercent) {
-        Log.i(TAG, String.format("transformIcon(scrimHeightPercent=%d)", scrimHeightPercent));
+        //Log.i(TAG, String.format("transformIcon(scrimHeightPercent=%d)", scrimHeightPercent));
         //Resize
         int rangeIconSize = mMaxIconSize - mMinIconSize;
         float iconSize = (((scrimHeightPercent / 100F) * rangeIconSize) + mMinIconSize);
@@ -168,7 +170,7 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     @Override
     public void onSwipingToRefresh(int scrollY) {
-        Log.i(TAG, String.format("onSwipingToRefresh(scrollY=%d)", scrollY));
+        //Log.i(TAG, String.format("onSwipingToRefresh(scrollY=%d)", scrollY));
         mSwipeRefreshScrollY = scrollY;
         if (mScrim != null) {
             //Header height
@@ -192,11 +194,13 @@ public abstract class RoundedHeaderActivity extends AppCompatActivity implements
 
     @Override
     public void onActionUp() {
-        Log.i(TAG, String.format("onActionUp() [mSwipeRefreshScrollY=%d]", mSwipeRefreshScrollY));
-        if (mSwipeRefreshScrollY <= 0) {
+        //Log.i(TAG, String.format("onActionUp() [mSwipeRefreshScrollY=%d]", mSwipeRefreshScrollY));
+        if (!swipingToRefresh) {
+            Log.e(TAG, String.format("mSwipeRefreshScrollY <= 0 (%d)", mSwipeRefreshScrollY));
             return;
         }
         if (mScrim != null) {
+            Log.e(TAG, String.format("mSwipeRefreshScrollY > 0 (%d)", mSwipeRefreshScrollY));
             //Header height
             ViewGroup.LayoutParams headerParams = mHeader.getLayoutParams();
             headerParams.height = getResources().getDimensionPixelOffset(R.dimen.header_height);

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,7 +19,6 @@ public class SwipeToRefreshNestedScrollView extends NestedScrollView implements
 
     private GestureDetectorCompat mGestureDetector;
 
-    private float mActionDownX;
     private float mActionDownY;
     private float mDistanceScrimScrollY;
 
@@ -45,7 +45,9 @@ public class SwipeToRefreshNestedScrollView extends NestedScrollView implements
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP && mSwipeToRefreshListener != null) {
+                    Log.e(TAG, String.format("mDistanceScrimScrollY=%f", mDistanceScrimScrollY));
                     mSwipeToRefreshListener.onActionUp();
+                    mDistanceScrimScrollY = 0;
                 }
                 mGestureDetector.onTouchEvent(motionEvent);
                 return SwipeToRefreshNestedScrollView.super.onTouchEvent(motionEvent);
@@ -75,14 +77,10 @@ public class SwipeToRefreshNestedScrollView extends NestedScrollView implements
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        if (mOverScrollSwipeToRefresh) {
-            if ((mActionDownX != e1.getX() || mActionDownY != e1.getY()) && distanceY < 0) {
-                //Handling last vertical scroll
-                if (mDistanceScrimScrollY > pxFromDp(getContext(), 96)) {
-                    // TODO: 12/10/2017 activer refresh
-                }
+        Log.i(TAG, String.format("onScroll(distanceY=%f)", distanceY));
+        if (mOverScrollSwipeToRefresh && distanceY < 0) {
+            if (mActionDownY != e1.getY()) {
                 //Record new scroll (vertical down)
-                mActionDownX = e1.getX();
                 mActionDownY = e1.getY();
                 mDistanceScrimScrollY = 0;
             }
@@ -91,9 +89,11 @@ public class SwipeToRefreshNestedScrollView extends NestedScrollView implements
             if (mSwipeToRefreshListener != null) {
                 mSwipeToRefreshListener.onSwipingToRefresh((int) mDistanceScrimScrollY);
             }
-
+            return true;
+        } else {
+            mActionDownY = e1.getY();
+            mDistanceScrimScrollY = 0;
         }
-
         return false;
     }
 
@@ -115,7 +115,7 @@ public class SwipeToRefreshNestedScrollView extends NestedScrollView implements
         return dp * context.getResources().getDisplayMetrics().density;
     }
 
-    public interface OnSwipeToRefreshListener {
+    interface OnSwipeToRefreshListener {
         void onSwipingToRefresh(int scrollY);
         void onActionUp();
     }
