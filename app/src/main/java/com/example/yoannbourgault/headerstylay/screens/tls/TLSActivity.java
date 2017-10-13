@@ -1,62 +1,92 @@
 package com.example.yoannbourgault.headerstylay.screens.tls;
 
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.example.yoannbourgault.headerstylay.R;
-import com.example.yoannbourgault.headerstylay.app.base.RoundedHeaderActivity;
-import com.example.yoannbourgault.headerstylay.app.base.SwipeToRefreshNestedScrollView;
-import com.example.yoannbourgault.headerstylay.screens.header.CollapsingToolbar;
+import com.example.yoannbourgault.headerstylay.screens.tls.scrollview.SwipeRefreshNestedScrollView;
+import com.example.yoannbourgault.headerstylay.screens.tls.toolbar.CollapseHeaderView;
 
-public class TLSActivity extends RoundedHeaderActivity implements
-        CollapsingToolbar.OnCloseIconClickedListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class TLSActivity extends AppCompatActivity implements TLSContract.View {
+
+    @BindView(R.id.collapse_toolbar)
+    CollapseHeaderView mToolbar;
+
+    @BindView(R.id.scrollView)
+    SwipeRefreshNestedScrollView mScrollView;
+
+    @BindView(R.id.collapse_header_title)
+    TextView mTitle;
+
+    @SuppressWarnings("FieldCanBeLocal")
+    private TLSContract.Presenter mPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CollapsingToolbar toolbar = (CollapsingToolbar) findViewById(R.id.collapsing_toolbar);
-        toolbar.setOnCloseIconListener(this);
+        setContentView(R.layout.activity_collapse_header);
+        ButterKnife.bind(this);
+        setSupportActionBar(mToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("");
+        }
+        mPresenter = new TLSPresenter(this);
+        mPresenter.initialize();
     }
 
     @Override
-    protected int getLayoutResId() {
-        return R.layout.activity_tls;
+    public void changeStatusBarColor(int colorResId) {
+        if (Build.VERSION.SDK_INT >= 21) {
+            Window window = getWindow();
+            // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            // finally change the color
+            window.setStatusBarColor(ContextCompat.getColor(this, colorResId));
+        }
     }
 
     @Override
-    protected int getStatusBarColorResId() {
-        return R.color.colorRedDark;
+    public void setToolbarTitle(String title) {
+        mTitle.setText(title);
     }
 
     @Override
-    protected SwipeToRefreshNestedScrollView getScrollView() {
-        return (SwipeToRefreshNestedScrollView) findViewById(R.id.nested_scroll_view);
+    public SwipeRefreshNestedScrollView getSwipeRefreshScrollView() {
+        return mScrollView;
     }
 
     @Override
-    protected RelativeLayout getHeader() {
-        return (RelativeLayout) findViewById(R.id.header_content);
+    public void changeHeaderHeight(int height) {
+        mToolbar.changeHeight(height);
     }
 
     @Override
-    protected View getHeaderScrim() {
-        return findViewById(R.id.header_scrim);
+    public void changeScrollViewSpacing(int height) {
+        mScrollView.changeSpacingTop(height);
     }
 
     @Override
-    protected FrameLayout getIconContainer() {
-        return (FrameLayout) findViewById(R.id.header_icon_container);
+    public int getDefaultHeaderHeight() {
+        return getResources().getDimensionPixelOffset(R.dimen.collapse_header_default_height);
     }
 
     @Override
-    protected void refreshContent() {
-        // TODO: 12/10/2017 Refresh data & UI
+    public int getScrollViewSpacing() {
+        return getResources().getDimensionPixelOffset(R.dimen.collapse_header_default_height);
     }
 
-    @Override
-    public void onCloseIconClicked() {
+    @OnClick(R.id.collapse_header_close_icon)
+    public void onClickCloseIcon() {
         finish();
     }
+
 }

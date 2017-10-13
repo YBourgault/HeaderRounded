@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/collapse_header_default_height"
+    android:background="@drawable/header_rounded_bg"
+    android:id="@+id/collapse_header_container">
+
+    <ImageView
+        android:id="@+id/collapse_header_icon"
+        android:layout_width="@dimen/image_size_max"
+        android:layout_height="@dimen/image_size_max"
+        android:background="@drawable/header_icon_bg"
+        android:contentDescription="@null"
+        android:elevation="4dp"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        tools:src="@drawable/ic_home_black_24dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="?android:attr/actionBarSize"
+            android:layout_height="?android:attr/actionBarSize" />
+
+        <TextView
+            android:id="@+id/collapse_header_title"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            tools:text="Hello" />
+
+        <ImageView
+            android:id="@+id/collapse_header_close_icon"
+            android:layout_width="?android:attr/actionBarSize"
+            android:layout_height="?android:attr/actionBarSize"
+            android:contentDescription="@null"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_close_black_24dp"
+            android:tint="@android:color/white" />
+
+    </LinearLayout>
+
+</FrameLayout>

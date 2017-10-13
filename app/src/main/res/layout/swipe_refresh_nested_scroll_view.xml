@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/content_header_spacing_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/content_header_spacing_top_default" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/content_header_spacing_top"
+        android:layout_margin="16dp"
+        android:lineSpacingExtra="8dp"
+        android:text="@string/random_text" />
+
+</LinearLayout>

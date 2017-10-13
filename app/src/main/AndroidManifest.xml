@@ -9,16 +9,37 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name=".screens.home.HomeActivity">
+        <activity
+            android:name=".screens.home.HomeActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".screens.detector.DetectorActivity"
+            android:parentActivityName=".screens.home.HomeActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-        <activity android:name=".screens.tls.TLSActivity">
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="yb"
+                    android:path="/detector"
+                    android:scheme="http" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".screens.home.HomeActivity" />
+        </activity>
+        <activity
+            android:name=".screens.tls.TLSActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -32,23 +53,8 @@
         </activity>
 
         <activity
-            android:name=".screens.detector.DetectorActivity"
-            android:parentActivityName=".screens.home.HomeActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="yb"
-                    android:path="/detector"
-                    android:scheme="http" />
-            </intent-filter>
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".screens.home.HomeActivity" />
-        </activity>
-
+            android:name=".app.base.TLSActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

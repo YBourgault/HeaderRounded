@@ -40,7 +40,7 @@ public class SwipeToRefreshNestedScrollView extends NestedScrollView implements
     }
 
     private void initialize() {
-        mGestureDetector = new GestureDetectorCompat(getContext(), this);
+
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {

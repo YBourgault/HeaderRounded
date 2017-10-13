@@ -14,4 +14,8 @@
     <dimen name="scrim_height_max">132dp</dimen>
     <dimen name="scrim_height_min">90dp</dimen>
 
+    <!-- 2è essai -->
+    <dimen name="collapse_header_default_height">128dp</dimen>
+    <dimen name="content_header_spacing_top_default">192dp</dimen>
+
 </resources>
